@@ -10,12 +10,17 @@ let timerDisplayText = document.getElementById("currentTimeRemaining");
 let gameRunningInfoContainer = document.getElementById("gameRunningInfo");
 let gamePlayContainer = document.getElementById("gameplayArea");
 
+let spawnableAreas = document.getElementsByClassName("whackamoleSpawnArea");
+
 // Variable declaration
 let gameTimeRemaining = 0;
 let defaultGameDuration = 120;
 let gameCountdownInterval = null;
+
 let currentGameScore = 0;
 let highestGameScore = 0;
+
+let spawningInterval = null;
 
 // function hoisting 
 // these are all called as soon as page loads
@@ -40,6 +45,26 @@ function gameTimeStep() {
 
     // update the highscore based on score ASAP
     updateHighScore()
+}
+
+async function spawnMole() {
+    // pick a random spawnable area
+    let randomNumberWithinArrayRange = Math.floor(Math.random() * spawnableAreas.length);
+    let chosenSpawnArea = spawnableAreas[randomNumberWithinArrayRange];
+
+    // grab an image from PokeAPI 
+    let randomPokemonNumber = Math.floor(Math.random() * 1025) + 1;
+    let apiResponse = await fetch("https://pokeapi.co/api/v2/pokemon/" + randomPokemonNumber);
+    let apiData = await apiResponse.json();
+
+    // create img with src from PokeAPI 
+    // let whackamoleImage = document.createElement("img");
+    // whackamoleImage.src = apiData.sprites.other.home.front_default;
+
+    // put img into spawnable area 
+    chosenSpawnArea.src = apiData.sprites.other.home.front_default;
+
+    // chosenSpawnArea.appendChild(whackamoleImage);
 }
 
 function toggleGameplayContent() {
@@ -72,7 +97,6 @@ function toggleGameControlButtons() {
     }
 }
 
-
 function startGame(desiredGameTime = defaultGameDuration) {
     gameTimeRemaining = desiredGameTime;
     console.log("Started the game. Game time remaining is now: " + gameTimeRemaining)
@@ -96,8 +120,12 @@ function startGame(desiredGameTime = defaultGameDuration) {
     }, 1000); // one second
 
     gameUpdateInterval = setInterval(gameTimeStep, 100);
-}
 
+    // TO DO : Refactor for multiple spawning intervals, or find a way to make it a different duration on each repititon 
+    spawningInterval = setInterval(() => {
+        spawnMole();
+    }, 1000)
+}
 
 function stopGame() {
     gameTimeRemaining = 0;
@@ -121,7 +149,7 @@ function updateHighScore() {
     highestGameScore = localStorage.getItem("highScore") || 0;
 
     // compare highest score to current score
-    if (currentGameScore > highestGameScore){
+    if (currentGameScore > highestGameScore) {
         // write to local storage
         localStorage.setItem("highScore", currentGameScore);
 
