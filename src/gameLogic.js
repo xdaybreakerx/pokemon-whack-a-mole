@@ -28,9 +28,15 @@ toggleGameControlButtons();
 toggleGameplayContent();
 updateHighScore();
 
+Array.from(spawnableAreas).forEach(area => {
+    area.addEventListener("click", (event) => {
+        whackamoleHandleClick(event);
+    });
+});
+
 // event listeners
 startGameButton.addEventListener("click", () => {
-    startGame(3);
+    startGame(10);
 });
 stopGameButton.addEventListener("click", () => {
     stopGame();
@@ -101,11 +107,16 @@ function startGame(desiredGameTime = defaultGameDuration) {
     gameTimeRemaining = desiredGameTime;
     console.log("Started the game. Game time remaining is now: " + gameTimeRemaining)
 
+    currentGameScore = 0;
+
+    wipeImagesFromSpawningAreas();
+
     // toggle game controls
     toggleGameControlButtons();
 
     // toggle gameplay content 
-    toggleGameplayContent()
+    toggleGameplayContent();
+
 
     gameCountdownInterval = setInterval(() => {
         gameTimeRemaining -= 1;
@@ -133,13 +144,14 @@ function stopGame() {
     // stop all intervals
     clearInterval(gameCountdownInterval);
     clearInterval(gameUpdateInterval);
-    gameTimeStep()
+    gameTimeStep();
 
     // toggle game controls
     toggleGameControlButtons();
 
     // toggle gameplay content 
-    toggleGameplayContent()
+    toggleGameplayContent();
+    wipeImagesFromSpawningAreas();
 
     console.log("Stopped the game. Game time remaining is now: " + gameTimeRemaining)
 }
@@ -159,4 +171,20 @@ function updateHighScore() {
     // make sure the text is always reflecting the value
     // even if value didn't change, because HTML has placeholder value that is not valid
     highscoreDisplayText.innerText = "High Score: " + highestGameScore;
+}
+
+function wipeImagesFromSpawningAreas() {
+    // loop through spawnableAreas
+    Array.from(spawnableAreas).forEach(area => {
+        // set the src property of each to ""
+        area.src = "";
+    });
+}
+
+function whackamoleHandleClick(event) {
+    if (event.target.src != "") {
+        currentGameScore++;
+        event.target.src = "";
+        console.log("Clicked on a mole! Score increased, it's now: " + currentGameScore);
+    }
 }
