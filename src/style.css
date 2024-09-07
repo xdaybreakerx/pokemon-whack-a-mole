@@ -39,7 +39,5 @@ body {
 }
 
 .whackamoleSpawnArea {
-  width: calc(
-    20% - 10px
-  );
+  width: calc(20% - 10px);
 }

@@ -103,6 +103,10 @@ function toggleGameControlButtons() {
     }
 }
 
+function toggleCursor() {
+    document.body.style.cursor = 'url(./assets/hammer.gif), auto';
+}
+
 function startGame(desiredGameTime = defaultGameDuration) {
     gameTimeRemaining = desiredGameTime;
     console.log("Started the game. Game time remaining is now: " + gameTimeRemaining)
@@ -116,6 +120,9 @@ function startGame(desiredGameTime = defaultGameDuration) {
 
     // toggle gameplay content 
     toggleGameplayContent();
+
+    // toggle cursor 
+    toggleCursor();
 
 
     gameCountdownInterval = setInterval(() => {
@@ -144,16 +151,19 @@ function stopGame() {
     // stop all intervals
     clearInterval(gameCountdownInterval);
     clearInterval(gameUpdateInterval);
+    clearInterval(spawningInterval);
     gameTimeStep();
 
     // toggle game controls
     toggleGameControlButtons();
-
-    // toggle gameplay content 
-    toggleGameplayContent();
+    // toggle game content
+    // toggleGameplayContent();
     wipeImagesFromSpawningAreas();
 
-    console.log("Stopped the game. Game time remaining is now: " + gameTimeRemaining)
+    // toggle the cursor
+    toggleCursor();
+
+    console.log("Stopped the game. Game time remaining is now: " + gameTimeRemaining);
 }
 
 function updateHighScore() {
