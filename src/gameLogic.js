@@ -21,6 +21,8 @@ let currentGameScore = 0;
 let highestGameScore = 0;
 
 let spawningInterval = null;
+let fastSpawningInterval = null;
+let despawnerInterval = null;
 
 // function hoisting 
 // these are all called as soon as page loads
@@ -54,6 +56,12 @@ function gameTimeStep() {
 }
 
 async function spawnMole() {
+
+    // handle the bug where a pokemon appears once after the game is over 
+    if (gameTimeRemaining <= 0) {
+        return;
+    }
+
     // pick a random spawnable area
     let randomNumberWithinArrayRange = Math.floor(Math.random() * spawnableAreas.length);
     let chosenSpawnArea = spawnableAreas[randomNumberWithinArrayRange];
@@ -104,7 +112,11 @@ function toggleGameControlButtons() {
 }
 
 function toggleCursor() {
-    document.body.style.cursor = 'url(./assets/hammer.gif), auto';
+    if (gameTimeRemaining > 0) {
+        document.body.style.cursor = 'url(./assets/hammer.gif), auto';
+    } else {
+        document.body.style.cursor = '';
+    }
 }
 
 function startGame(desiredGameTime = defaultGameDuration) {
@@ -143,6 +155,13 @@ function startGame(desiredGameTime = defaultGameDuration) {
     spawningInterval = setInterval(() => {
         spawnMole();
     }, 1000)
+    fastSpawningInterval = setInterval(() => {
+        spawnMole();
+    }, 500);
+    // Randomly despawn or delete a whackamole from the game
+    despawnerInterval = setInterval(() => {
+        deleteRandomWhackamole();
+    }, 500);
 }
 
 function stopGame() {
@@ -152,6 +171,8 @@ function stopGame() {
     clearInterval(gameCountdownInterval);
     clearInterval(gameUpdateInterval);
     clearInterval(spawningInterval);
+    clearInterval(fastSpawningInterval);
+    clearInterval(despawnerInterval);
     gameTimeStep();
 
     // toggle game controls
@@ -187,14 +208,23 @@ function wipeImagesFromSpawningAreas() {
     // loop through spawnableAreas
     Array.from(spawnableAreas).forEach(area => {
         // set the src property of each to ""
-        area.src = "";
+        area.src = "./assets/hole.png";
     });
 }
 
 function whackamoleHandleClick(event) {
-    if (event.target.src != "") {
+    if (event.target.src != "./assets/hole.png") {
         currentGameScore++;
-        event.target.src = "";
+        event.target.src = "./assets/hole.png";
         console.log("Clicked on a mole! Score increased, it's now: " + currentGameScore);
     }
+}
+
+function deleteRandomWhackamole() {
+    // pick one random spawnableArea
+    let randomNumberWithinArrayRange = Math.floor(Math.random() * spawnableAreas.length);
+    let chosenSpawnArea = spawnableAreas[randomNumberWithinArrayRange];
+
+    // set its src property to hole.png
+    chosenSpawnArea.src = "./assets/hole.png";
 }
